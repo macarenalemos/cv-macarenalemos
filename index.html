@@ -3,534 +3,1196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macarena Lemos - Asistente para Academias Online</title>
+    <title>Macarena Lemos — Asistente para Academias Online</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <style>
+        :root {
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+            --gray-950: #0a0a0a;
+            --blue: #3b82f6;
+            --blue-dark: #1d4ed8;
+            --emerald: #10b981;
+            --purple: #8b5cf6;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #2d3748;
-            background: #f7fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
         }
 
-        .container {
-            max-width: 900px;
+        /* CUSTOM CURSOR */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: width 0.3s var(--ease-out-expo), 
+                        height 0.3s var(--ease-out-expo),
+                        border-color 0.3s var(--ease-out-expo);
+        }
+
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+        }
+
+        .cursor.hover {
+            width: 60px;
+            height: 60px;
+            border-color: rgba(59, 130, 246, 0.8);
+        }
+
+        /* ANIMATED BACKGROUND */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                #000;
+            background-size: 100% 100%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { 
+                background-position: 0% 50%, 100% 100%, 50% 0%; 
+            }
+            50% { 
+                background-position: 100% 50%, 0% 0%, 50% 100%; 
+            }
+        }
+
+        /* GRAIN TEXTURE */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* SCROLL PROGRESS */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--purple));
+            z-index: 100;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            padding: 24px 0;
+            transition: background 0.3s var(--ease-out-expo),
+                        backdrop-filter 0.3s var(--ease-out-expo);
+        }
+
+        nav.scrolled {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* HEADER */
-        header {
-            background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 3.5em;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        header .subtitle {
-            font-size: 1.5em;
-            font-weight: 400;
-            margin-bottom: 30px;
-            opacity: 0.95;
-        }
-
-        .location {
-            font-size: 1em;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .contact-header {
-            margin-top: 30px;
+            padding: 0 48px;
             display: flex;
-            gap: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .contact-header a {
-            color: white;
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-button {
+            padding: 12px 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            color: #fff;
             text-decoration: none;
-            padding: 12px 28px;
-            border: 2px solid white;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s var(--ease-out-expo);
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 48px 80px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .contact-header a:hover {
-            background: white;
-            color: #2c5282;
-        }
-
-        /* SECTIONS */
-        section {
-            background: white;
-            margin: 40px auto;
-            padding: 50px 40px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        section h2 {
-            font-size: 2em;
-            color: #2c5282;
-            margin-bottom: 25px;
-            font-weight: 700;
-            border-bottom: 3px solid #4299e1;
-            padding-bottom: 15px;
-        }
-
-        section p {
-            font-size: 1.1em;
-            line-height: 1.8;
-            color: #4a5568;
-            margin-bottom: 20px;
-        }
-
-        /* ABOUT */
-        .about-text {
-            font-size: 1.15em;
-            line-height: 1.9;
-        }
-
-        /* SKILLS GRID */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .skill-category {
-            background: #edf2f7;
-            padding: 30px;
-            border-radius: 8px;
-            border-left: 4px solid #4299e1;
-        }
-
-        .skill-category h3 {
-            color: #2c5282;
-            font-size: 1.3em;
-            margin-bottom: 18px;
+            padding: 8px 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 100px;
+            font-size: 13px;
             font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--emerald);
+            margin-bottom: 32px;
+            opacity: 0;
         }
 
-        .skill-category ul {
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--emerald);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-dot::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--emerald);
+            border-radius: 50%;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0;
+                transform: scale(1.8);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 120px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            margin-bottom: 32px;
+            opacity: 0;
+        }
+
+        .hero h1 .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero h1 .line span {
+            display: block;
+            transform: translateY(100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.6) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .accent-text {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: clamp(18px, 2vw, 24px);
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 700px;
+            margin-bottom: 48px;
+            opacity: 0;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 40px;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 100px;
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s var(--ease-out-expo), 
+                        height 0.6s var(--ease-out-expo);
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.2);
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* STATS */
+        .stats {
+            padding: 120px 48px;
+            position: relative;
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+
+        .stat-card {
+            padding: 48px 32px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.6s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.6s var(--ease-out-expo);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.6) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        /* SECTION */
+        section {
+            padding: 120px 48px;
+            position: relative;
+        }
+
+        .section-header {
+            max-width: 1400px;
+            margin: 0 auto 80px;
+            text-align: center;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 100px;
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: clamp(40px, 6vw, 80px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* SKILLS CARDS */
+        .cards-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+
+        .skill-card {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.6s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.6s var(--ease-out-expo);
+        }
+
+        .skill-card:hover::before {
+            opacity: 1;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .skill-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .skill-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .skill-list {
             list-style: none;
         }
 
-        .skill-category li {
-            padding: 8px 0;
-            color: #4a5568;
-            position: relative;
-            padding-left: 25px;
-            font-size: 1em;
+        .skill-list li {
+            padding: 12px 0;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 15px;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .skill-category li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #4299e1;
-            font-weight: bold;
-            font-size: 1.2em;
+        .skill-list li:last-child {
+            border-bottom: none;
+        }
+
+        .skill-list li::before {
+            content: "→";
+            color: var(--blue);
+            font-weight: 600;
+            flex-shrink: 0;
         }
 
         /* EXPERIENCE */
-        .experience-box {
-            background: #edf2f7;
-            padding: 35px;
-            border-radius: 8px;
-            border-left: 5px solid #4299e1;
-            margin-top: 25px;
+        .experience-section {
+            background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05), transparent 50%);
         }
 
-        .experience-box .company {
-            color: #2c5282;
+        .experience-card {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 64px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--blue), var(--purple));
+        }
+
+        .experience-company {
+            font-size: 14px;
             font-weight: 700;
-            font-size: 1.2em;
-            margin-bottom: 8px;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
         }
 
-        .experience-box .role {
-            font-size: 1.4em;
-            font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 8px;
+        .experience-role {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #fff;
+            margin-bottom: 12px;
         }
 
-        .experience-box .period {
-            color: #718096;
-            font-size: 0.95em;
-            margin-bottom: 20px;
+        .experience-period {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 32px;
         }
 
-        .experience-box .description {
-            margin-bottom: 20px;
+        .experience-description {
+            font-size: 17px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 32px;
+        }
+
+        .highlight-box {
+            padding: 32px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            margin: 32px 0;
+        }
+
+        .highlight-box strong {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .highlight-box ul {
+            margin-left: 24px;
+            color: rgba(255, 255, 255, 0.8);
             line-height: 1.8;
         }
 
-        .experience-box .highlight-box {
-            background: white;
-            padding: 25px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border-left: 3px solid #48bb78;
-        }
-
-        .experience-box .highlight-box strong {
-            color: #2c5282;
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.05em;
-        }
-
-        .experience-box h4 {
-            color: #2c5282;
-            font-size: 1.15em;
-            margin: 25px 0 15px 0;
-            font-weight: 600;
-        }
-
         /* TOOLS */
-        .tools-list {
+        .tools-grid {
+            max-width: 900px;
+            margin: 48px auto 0;
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin-top: 20px;
+            justify-content: center;
         }
 
-        .tools-list span {
-            background: #2c5282;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.95em;
+        .tool-badge {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
             font-weight: 500;
+            transition: all 0.3s var(--ease-out-expo);
+        }
+
+        .tool-badge:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
         /* CHARACTERISTICS */
         .characteristics-grid {
+            max-width: 800px;
+            margin: 0 auto;
             display: grid;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 16px;
         }
 
         .characteristic-item {
-            background: #f7fafc;
-            padding: 20px 25px;
-            border-radius: 6px;
-            border-left: 4px solid #48bb78;
-            font-size: 1.05em;
-            color: #2d3748;
+            padding: 24px 32px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.4s var(--ease-out-expo);
         }
 
-        /* AVAILABILITY */
-        .availability-box {
-            background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
-            color: white;
-            padding: 40px;
+        .characteristic-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(16, 185, 129, 0.3);
+            transform: translateX(8px);
+        }
+
+        .characteristic-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 12px;
-            text-align: center;
-            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--emerald);
+            flex-shrink: 0;
+            font-size: 20px;
         }
 
-        .availability-box h3 {
-            font-size: 1.8em;
-            margin-bottom: 20px;
+        .characteristic-text {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .characteristic-text strong {
+            color: #fff;
             font-weight: 600;
         }
 
-        .availability-box .items {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            font-size: 1.1em;
+        /* CTA SECTION */
+        .cta-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 64px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .availability-box .items div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 50%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cta-section h2 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section .cta-button {
+            font-size: 18px;
+            padding: 20px 48px;
         }
 
         /* FOOTER */
         footer {
-            background: #1a202c;
-            color: #a0aec0;
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
+            padding: 80px 48px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        footer .contact-footer {
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
-            justify-content: center;
-            gap: 30px;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            margin-top: 20px;
-            font-size: 1.05em;
+            gap: 32px;
         }
 
-        footer .contact-footer a {
-            color: #4299e1;
-            text-decoration: none;
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.5) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        footer .contact-footer a:hover {
-            color: #63b3ed;
+        .footer-copy {
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* RESPONSIVE */
+        /* MOBILE */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5em;
+            body {
+                cursor: auto;
             }
             
-            header .subtitle {
-                font-size: 1.2em;
+            .cursor, .cursor-dot {
+                display: none;
             }
 
-            section {
-                padding: 35px 25px;
+            .nav-content,
+            .hero,
+            section,
+            .stats {
+                padding-left: 24px;
+                padding-right: 24px;
             }
 
-            section h2 {
-                font-size: 1.6em;
+            .hero {
+                min-height: 100svh;
+                padding-top: 120px;
             }
 
-            .contact-header {
-                flex-direction: column;
-            }
-
-            .contact-header a {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .skills-grid {
+            .stats-grid,
+            .cards-grid {
                 grid-template-columns: 1fr;
             }
 
-            .availability-box .items {
+            .experience-card {
+                padding: 40px 24px;
+            }
+
+            .cta-section {
+                padding: 48px 32px;
+            }
+
+            .footer-content {
                 flex-direction: column;
-                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-number {
+                font-size: 48px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <h1>MACARENA LEMOS</h1>
-        <div class="subtitle">Asistente para Academias Online</div>
-        <div class="location">📍 Tandil, Buenos Aires, Argentina | 💻 Trabajo remoto</div>
-        <div class="contact-header">
-            <a href="mailto:Lemosolmedomacarena3@gmail.com">📧 Email</a>
-            <a href="https://walink.co/p2np40">💬 WhatsApp</a>
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- SCROLL PROGRESS -->
+    <div class="progress-bar"></div>
+
+    <!-- ANIMATED BACKGROUND -->
+    <div class="bg-gradient"></div>
+    <div class="grain"></div>
+
+    <!-- NAV -->
+    <nav id="nav">
+        <div class="nav-content">
+            <div class="logo">Macarena Lemos</div>
+            <a href="https://walink.co/p2np40" class="nav-button">
+                <span>WhatsApp</span>
+            </a>
         </div>
-    </header>
+    </nav>
 
-    <div class="container">
-        <!-- SOBRE MÍ -->
-        <section>
-            <h2>Sobre mí</h2>
-            <p class="about-text">
-                Trabajé <strong>2 años y medio</strong> en una academia online de estética gestionando la atención al cliente, soporte técnico básico y operaciones diarias.
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <span class="pulse-dot"></span>
+                <span>Disponible para nuevas oportunidades</span>
+            </div>
+            <h1>
+                <div class="line"><span class="gradient-text">Asistente para</span></div>
+                <div class="line"><span class="accent-text">Academias Online</span></div>
+            </h1>
+            <p class="hero-description">
+                2 años y medio gestionando atención al cliente, soporte técnico y operaciones en academia educativa. Busco nuevas oportunidades donde pueda aportar mi experiencia.
             </p>
-            <p class="about-text">
-                Busco nuevas oportunidades en academias o negocios educativos online donde necesiten alguien que maneje la comunicación con alumnos, responda consultas y ayude con la parte operativa.
-            </p>
-        </section>
+            <a href="https://walink.co/p2np40" class="cta-button">
+                <span>Charlemos por WhatsApp</span>
+                <span>→</span>
+            </a>
+        </div>
+    </section>
 
-        <!-- QUÉ SÉ HACER -->
-        <section>
-            <h2>¿Qué sé hacer?</h2>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3>Atención al Cliente</h3>
-                    <ul>
-                        <li>Responder consultas por WhatsApp, Instagram, email</li>
-                        <li>Resolver dudas sobre cursos, precios, modalidades</li>
-                        <li>Atender reclamos y situaciones conflictivas</li>
-                        <li>Seguimiento a alumnos durante el curso</li>
-                    </ul>
-                </div>
+    <!-- STATS -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">2.5</div>
+                <div class="stat-label">Años de experiencia</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">+400</div>
+                <div class="stat-label">Alumnas acompañadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">60</div>
+                <div class="stat-label">Consultas diarias (picos)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1K+</div>
+                <div class="stat-label">Participantes en eventos</div>
+            </div>
+        </div>
+    </section>
 
-                <div class="skill-category">
-                    <h3>Redes Sociales</h3>
-                    <ul>
-                        <li>Responder mensajes directos y comentarios</li>
-                        <li>Atención de consultas comerciales por Instagram/Facebook</li>
-                        <li>Uso de WhatsApp Business</li>
-                    </ul>
-                </div>
+    <!-- SKILLS -->
+    <section>
+        <div class="section-header">
+            <span class="section-badge">Habilidades</span>
+            <h2 class="section-title">¿Qué sé hacer?</h2>
+        </div>
+        <div class="cards-grid">
+            <div class="skill-card">
+                <span class="skill-icon">💬</span>
+                <h3 class="skill-title">Atención al Cliente</h3>
+                <ul class="skill-list">
+                    <li>Respuesta por WhatsApp, Instagram, email</li>
+                    <li>Resolución de dudas sobre cursos</li>
+                    <li>Manejo de reclamos y conflictos</li>
+                    <li>Seguimiento personalizado</li>
+                </ul>
+            </div>
+            <div class="skill-card">
+                <span class="skill-icon">📱</span>
+                <h3 class="skill-title">Redes Sociales</h3>
+                <ul class="skill-list">
+                    <li>Gestión de mensajes directos</li>
+                    <li>Respuesta a comentarios</li>
+                    <li>Atención comercial Instagram/Facebook</li>
+                    <li>WhatsApp Business</li>
+                </ul>
+            </div>
+            <div class="skill-card">
+                <span class="skill-icon">⚙️</span>
+                <h3 class="skill-title">Soporte Operativo</h3>
+                <ul class="skill-list">
+                    <li>Gestión de accesos a plataformas</li>
+                    <li>Altas y bajas de alumnos</li>
+                    <li>Problemas técnicos básicos</li>
+                    <li>Carga de materiales educativos</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
-                <div class="skill-category">
-                    <h3>Soporte Operativo</h3>
-                    <ul>
-                        <li>Gestión de accesos a plataformas educativas</li>
-                        <li>Altas y bajas de alumnos</li>
-                        <li>Resolución de problemas técnicos básicos</li>
-                        <li>Carga de materiales (videos, PDFs)</li>
-                    </ul>
+    <!-- TOOLS -->
+    <section>
+        <div class="section-header">
+            <span class="section-badge">Stack</span>
+            <h2 class="section-title">Herramientas</h2>
+            <p class="section-subtitle">Manejo estas plataformas y aprendo rápido nuevas tecnologías</p>
+        </div>
+        <div class="tools-grid">
+            <span class="tool-badge">Google Workspace</span>
+            <span class="tool-badge">Gmail</span>
+            <span class="tool-badge">Drive</span>
+            <span class="tool-badge">Docs</span>
+            <span class="tool-badge">Sheets</span>
+            <span class="tool-badge">WhatsApp Business</span>
+            <span class="tool-badge">WordPress</span>
+            <span class="tool-badge">WooCommerce</span>
+            <span class="tool-badge">LearnDash</span>
+            <span class="tool-badge">Zoom</span>
+            <span class="tool-badge">Instagram</span>
+            <span class="tool-badge">Facebook</span>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="experience-section">
+        <div class="section-header">
+            <span class="section-badge">Trayectoria</span>
+            <h2 class="section-title">Experiencia</h2>
+        </div>
+        <div class="experience-card">
+            <div class="experience-company">Academia de Estética Andrea Lemos</div>
+            <h3 class="experience-role">Asistente de Atención y Operaciones</h3>
+            <div class="experience-period">Enero 2022 - Enero 2025 · 2 años y 5 meses</div>
+            <div class="experience-description">
+                <p>Gestión integral del ciclo de atención al alumno en academia online de estética profesional. Responsable de la comunicación con alumnas, soporte técnico básico y operaciones diarias de la plataforma.</p>
+            </div>
+            <div class="highlight-box">
+                <strong>📊 Volumen gestionado</strong>
+                <ul>
+                    <li>+400 alumnas acompañadas en procesos completos</li>
+                    <li>50-60 consultas diarias en períodos de lanzamiento</li>
+                    <li>Eventos en vivo con hasta 1000 participantes</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHARACTERISTICS -->
+    <section>
+        <div class="section-header">
+            <span class="section-badge">Perfil</span>
+            <h2 class="section-title">Lo que me caracteriza</h2>
+        </div>
+        <div class="characteristics-grid">
+            <div class="characteristic-item">
+                <div class="characteristic-icon">✓</div>
+                <div class="characteristic-text">
+                    <strong>Paciente</strong> — Puedo explicar lo mismo varias veces de diferentes formas
                 </div>
             </div>
-        </section>
-
-        <!-- HERRAMIENTAS -->
-        <section>
-            <h2>Herramientas que manejo</h2>
-            <div class="tools-list">
-                <span>Google Workspace</span>
-                <span>Gmail</span>
-                <span>Drive</span>
-                <span>Docs</span>
-                <span>Sheets</span>
-                <span>WhatsApp Business</span>
-                <span>WordPress</span>
-                <span>WooCommerce</span>
-                <span>LearnDash</span>
-                <span>Zoom</span>
-                <span>Instagram</span>
-                <span>Facebook</span>
-            </div>
-            <p style="margin-top: 25px; font-weight: 600; color: #2c5282;">
-                Lo que aprendo rápido:
-            </p>
-            <ul style="margin-top: 15px; margin-left: 25px; color: #4a5568; font-size: 1.05em;">
-                <li>Nuevas plataformas educativas (Kajabi, Hotmart, Teachable, etc.)</li>
-                <li>CRMs y sistemas de tickets</li>
-                <li>Procesos específicos de cada academia</li>
-            </ul>
-        </section>
-
-        <!-- EXPERIENCIA -->
-        <section>
-            <h2>Experiencia</h2>
-            <div class="experience-box">
-                <div class="company">Academia de Estética Andrea Lemos</div>
-                <div class="role">Asistente de Atención y Operaciones</div>
-                <div class="period">Enero 2022 - Enero 2025 (2.5 años)</div>
-                
-                <div class="description">
-                    <ul style="margin-left: 25px; line-height: 1.9;">
-                        <li>Atención diaria a consultas de alumnas por WhatsApp e Instagram</li>
-                        <li>Gestión de inscripciones, accesos y seguimiento</li>
-                        <li>Soporte técnico básico (problemas de acceso, pagos, plataforma)</li>
-                        <li>Moderación de clases en vivo por Zoom</li>
-                        <li>Carga de contenido en plataforma educativa</li>
-                    </ul>
-                </div>
-
-                <div class="highlight-box">
-                    <strong>📊 Volumen gestionado:</strong>
-                    <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
-                        <li>+400 alumnas acompañadas</li>
-                        <li>50-60 consultas diarias en períodos de lanzamiento</li>
-                        <li>Eventos con hasta 1000 participantes</li>
-                    </ul>
+            <div class="characteristic-item">
+                <div class="characteristic-icon">✓</div>
+                <div class="characteristic-text">
+                    <strong>Responsable</strong> — Trabajo sin necesidad de supervisión constante
                 </div>
             </div>
-        </section>
-
-        <!-- LO QUE ME CARACTERIZA -->
-        <section>
-            <h2>Lo que me caracteriza</h2>
-            <div class="characteristics-grid">
-                <div class="characteristic-item">
-                    <strong>✓ Paciente</strong> - Puedo explicar lo mismo varias veces de diferentes formas
-                </div>
-                <div class="characteristic-item">
-                    <strong>✓ Responsable</strong> - Trabajo sin necesidad de supervisión constante
-                </div>
-                <div class="characteristic-item">
-                    <strong>✓ Aprendo rápido</strong> - Me adapto a nuevas herramientas y plataformas
-                </div>
-                <div class="characteristic-item">
-                    <strong>✓ Trato humano</strong> - Buena comunicación con todo tipo de perfiles
+            <div class="characteristic-item">
+                <div class="characteristic-icon">✓</div>
+                <div class="characteristic-text">
+                    <strong>Aprendo rápido</strong> — Me adapto a nuevas herramientas y plataformas
                 </div>
             </div>
-        </section>
-
-        <!-- DISPONIBILIDAD -->
-        <section>
-            <div class="availability-box">
-                <h3>Disponibilidad</h3>
-                <div class="items">
-                    <div>💻 Remoto - Full time</div>
-                    <div>⏰ Horario flexible</div>
-                    <div>💰 Abierta a discutir condiciones</div>
+            <div class="characteristic-item">
+                <div class="characteristic-icon">✓</div>
+                <div class="characteristic-text">
+                    <strong>Trato humano</strong> — Buena comunicación con todo tipo de perfiles
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section>
+        <div class="cta-section">
+            <h2>¿Necesitás ayuda con tu academia?</h2>
+            <p>Estoy disponible full-time para trabajar de forma remota.</p>
+            <a href="https://walink.co/p2np40" class="cta-button">
+                <span>Charlemos por WhatsApp</span>
+                <span>→</span>
+            </a>
+        </div>
+    </section>
 
     <!-- FOOTER -->
     <footer>
-        <p style="font-size: 1.1em; margin-bottom: 15px;">¿Necesitás ayuda con tu academia?</p>
-        <div class="contact-footer">
-            <a href="mailto:Lemosolmedomacarena3@gmail.com">📧 Lemosolmedomacarena3@gmail.com</a>
-            <a href="https://walink.co/p2np40">📱 WhatsApp</a>
+        <div class="footer-content">
+            <div class="footer-logo">Macarena Lemos</div>
+            <div class="footer-copy">
+                © 2025 — Tandil, Buenos Aires, Argentina
+            </div>
         </div>
-        <p style="margin-top: 30px; font-size: 0.9em;">Macarena Lemos · 2025</p>
     </footer>
+
+    <script>
+        // GSAP SETUP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // CUSTOM CURSOR
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        let dotX = 0, dotY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            dotX += (mouseX - dotX) * 0.3;
+            dotY += (mouseY - dotY) * 0.3;
+            
+            cursor.style.transform = `translate(${cursorX - 10}px, ${cursorY - 10}px)`;
+            cursorDot.style.transform = `translate(${dotX - 2}px, ${dotY - 2}px)`;
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // CURSOR HOVER
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // SCROLL PROGRESS
+        const progressBar = document.querySelector('.progress-bar');
+        window.addEventListener('scroll', () => {
+            const scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight));
+            progressBar.style.transform = `scaleX(${scrollPercentage})`;
+        });
+
+        // NAV SCROLL
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // HERO ANIMATIONS
+        gsap.to('.badge', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+        });
+
+        gsap.to('.hero h1 .line span', {
+            y: 0,
+            duration: 1.2,
+            stagger: 0.2,
+            ease: 'power4.out',
+            delay: 0.2
+        });
+
+        gsap.to('.hero-description', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.6
+        });
+
+        gsap.to('.cta-button', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.8
+        });
+
+        // SCROLL ANIMATIONS
+        gsap.utils.toArray('.stat-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                },
+                y: 60,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                delay: i * 0.1
+            });
+        });
+
+        gsap.utils.toArray('.skill-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                },
+                y: 60,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                delay: i * 0.15
+            });
+        });
+
+        gsap.from('.experience-card', {
+            scrollTrigger: {
+                trigger: '.experience-card',
+                start: 'top 80%',
+            },
+            y: 80,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        gsap.utils.toArray('.characteristic-item').forEach((item, i) => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 85%',
+                },
+                x: -40,
+                opacity: 0,
+                duration: 0.6,
+                ease: 'power3.out',
+                delay: i * 0.1
+            });
+        });
+
+        gsap.from('.cta-section', {
+            scrollTrigger: {
+                trigger: '.cta-section',
+                start: 'top 80%',
+            },
+            scale: 0.95,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+    </script>
 </body>
 </html>
-```
-
----
-
-## ¿Qué tiene de bueno este código?
-
-✅ **Sin humo** - Todo es defendible  
-✅ **Clean y profesional** - Se ve serio pero no intimidante  
-✅ **Mobile responsive** - Se ve perfecto en celular  
-✅ **CTAs claros** - Email y WhatsApp en header Y footer  
-✅ **Fácil de leer** - Secciones bien separadas  
-✅ **Carga rápido** - No usa librerías externas  
-
----
-
-## Cómo subirlo a GitHub Pages
-
-1. Que entre a su repo de GitHub
-2. Que cree un archivo llamado `index.html`
-3. Que pegue TODO este código
-4. Commit + Push
-5. Listo, la página va a estar en: `https://macarenalemos.github.io`
-
----
-
-## El mensaje de Instagram que tiene que mandar mañana
-```
-Hola [Nombre]!
-
-Soy Macarena, trabajé 2 años y medio en una academia online gestionando atención al cliente, soporte y operaciones.
-
-Estoy explorando nuevas oportunidades y me gustaría saber si en algún momento necesitan ayuda con:
-- Atención por WhatsApp/Instagram
-- Gestión de alumnos
-- Soporte operativo
-
-Te dejo mi perfil acá: https://macarenalemos.github.io
-
-Cualquier cosa, charlamos!
-Saludos
